@@ -30,9 +30,9 @@
     </ul>
 -->
 
-    <div id="timestamp" style="text-align:center;">FRAME TIME</div>
+    <div id="timestamp" style="position: absolute;z-index: 2;font-size: xx-large;font-weight: bold;">FRAME TIME</div>
 
-    <div id="mapid" style="position: absolute; top: 40px; left: 0; bottom: 0; right: 0;"></div>
+    <div id="mapid" style="position: absolute; z-index:1; top: 0px; left: 0; bottom: 0; right: 0;"></div>
 
     <script>
         const queryString = window.location.search;
@@ -41,13 +41,10 @@
         if (lat == null)
             lat = 49.38;
 
-        console.log(lat);
-        // shirt
 
         var lng = urlParams.get('lng');
         if (lng == null)
             lng = 7.57;
-        console.log(lng);
         var zoom = urlParams.get('zoom');
         if (zoom == null)
             zoom = 10;
@@ -58,7 +55,7 @@
         }).setView([lat, lng], zoom, );
 
         const zoomOptions = {
-            position: 'topleft',
+            position: 'topright',
             zoomInText: '<span aria-hidden="true">+</span>',
             zoomOutText: '<span aria-hidden="true"> &#x2212; </span>',
 
@@ -77,6 +74,7 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attributions: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(map);
+        L.marker([lat, lng]).addTo(map);
         /**
          * RainViewer radar animation part
          * @type {number[]}
@@ -224,14 +222,12 @@
                 radarLayers[currentFrame.path].setOpacity(0);
             }
             radarLayers[nextFrame.path].setOpacity(100);
-
-
-
             var timeOptions = {
                 hour: 'numeric',
                 minute: 'numeric'
             }
-            document.getElementById("timestamp").innerHTML = "Uhrzeit:" + (new Date(nextFrame.time * 1000))
+            var pastOrForecast = nextFrame.time > Date.now() / 1000 ? 'Forecast ' : 'Vergangen';
+            document.getElementById("timestamp").innerHTML = pastOrForecast + ":  " + (new Date(nextFrame.time * 1000))
                 .toLocaleTimeString('de-DE', timeOptions) + " Uhr";
         }
 
@@ -280,13 +276,11 @@
             initialize(apiData, optionKind);
         }
 
-
         function setColors() {
             var e = document.getElementById('colors');
             optionColorScheme = e.options[e.selectedIndex].value;
             initialize(apiData, optionKind);
         }
-
 
         /**
          * Handle arrow keys for navigation between next \ prev frames
